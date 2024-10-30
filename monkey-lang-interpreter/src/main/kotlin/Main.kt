@@ -1,5 +1,6 @@
 
 fun main() {
-    val a = 1;
-    println(1)
+    println("Hello  This is the Monkey programming language!")
+    println("Feel free to type in commands")
+    repl.start()
 }
