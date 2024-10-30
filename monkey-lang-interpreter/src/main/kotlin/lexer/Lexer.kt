@@ -12,6 +12,9 @@ private val KEY_WORDS = mapOf(
     "return" to TokenType.RETURN,
     )
 
+/**
+ * parse input string into token stream
+ */
 class Lexer(private val input: String, var position: Int = 0, var readPosition: Int = 0, var ch: Char = 0.toChar()) {
 
     companion object {

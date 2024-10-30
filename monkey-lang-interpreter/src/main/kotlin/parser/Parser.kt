@@ -4,12 +4,18 @@ import ast.*
 import lexer.Lexer
 import token.Token
 import token.TokenType
-import kotlin.time.measureTime
 
-class Parser(val lexer: Lexer, var curToken: Token?, var peekToken: Token?, val erros: MutableList<String> = mutableListOf()) {
+class Parser(val lexer: Lexer,
+             var curToken: Token?,
+             var peekToken: Token?,
+             val erros: MutableList<String> = mutableListOf(),
+             val prefixParseFns: MutableMap<TokenType, () -> Expression> = mutableMapOf(),
+             val infixParseFns: MutableMap<TokenType, (Expression) -> Expression> = mutableMapOf()
+    ) {
     companion object {
         fun new(lexer: Lexer): Parser {
             val parser = Parser(lexer, null, null)
+            parser.registerPrefixFn(TokenType.IDENT, parser::parseIdentifier)
             parser.nextToken()
             parser.nextToken()
             return parser
@@ -37,8 +43,21 @@ class Parser(val lexer: Lexer, var curToken: Token?, var peekToken: Token?, val 
         return when(this.curToken?.type) {
             TokenType.LET -> this.parseLetStatement()
             TokenType.RETURN -> this.parseReturnStatement()
-            else -> null
+            else -> this.parseExpressionStatement()
         }
+    }
+
+    private fun parseExpressionStatement(): ExpressionStatement {
+        val stmt = ExpressionStatement(this.curToken!!, this.parseExpression(OpPrecedence.LOWEST))
+        if(this.peekTokenIs(TokenType.SEMICOLON)) {
+            this.nextToken()
+        }
+        return stmt
+    }
+
+    private fun parseExpression(lowest: OpPrecedence): Expression? {
+        val prefix = this.prefixParseFns[this.curToken!!.type] ?: return null
+        return prefix?.invoke()
     }
 
     private fun parseReturnStatement(): ReturnStatement {
@@ -90,5 +109,17 @@ class Parser(val lexer: Lexer, var curToken: Token?, var peekToken: Token?, val 
     private fun peekError(t: TokenType) {
         val msg = "expected next token to be $t, got ${peekToken?.type} instead"
         this.erros.add(msg)
+    }
+
+    fun registerPrefixFn(tokenType: TokenType, prefixFn: () -> Expression) {
+        this.prefixParseFns[tokenType] = prefixFn
+    }
+
+    fun registerInfixFn(tokenType: TokenType, infixFn: (Expression) -> Expression) {
+        this.infixParseFns[tokenType] = infixFn
+    }
+
+    fun parseIdentifier(): Identifier {
+        return Identifier(this.curToken!!, this.curToken!!.literal)
     }
 }

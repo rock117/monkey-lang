@@ -9,4 +9,8 @@ class Program(val statements: MutableList<Statement>): Node {
         }
     }
 
+    override fun string(): String {
+        return this.statements.joinToString("") { it.string() }
+    }
+
 }

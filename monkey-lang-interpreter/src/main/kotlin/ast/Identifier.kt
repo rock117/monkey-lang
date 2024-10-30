@@ -14,4 +14,8 @@ data class Identifier(val token: Token, val value: String): Expression {
         return this.token.literal
     }
 
+    override fun string(): String {
+        return value
+    }
+
 }
