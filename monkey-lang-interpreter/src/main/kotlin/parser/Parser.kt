@@ -16,10 +16,21 @@ class Parser(val lexer: Lexer,
         fun new(lexer: Lexer): Parser {
             val parser = Parser(lexer, null, null)
             parser.registerPrefixFn(TokenType.IDENT, parser::parseIdentifier)
+            parser.registerPrefixFn(TokenType.INT, parser::parseIntegerLiteral)
+            parser.registerPrefixFn(TokenType.BANG, parser::parsePrefixExpression)
+            parser.registerPrefixFn(TokenType.MINUS, parser::parsePrefixExpression)
+
             parser.nextToken()
             parser.nextToken()
             return parser
         }
+    }
+
+    private fun parsePrefixExpression(): Expression {
+        val expression = PrefixExpression(this.curToken!!, this.curToken!!.literal)
+        this.nextToken()
+        expression.right = this.parseExpression(OpPrecedence.PREFIX)
+        return expression
     }
 
     fun nextToken() {
@@ -57,6 +68,10 @@ class Parser(val lexer: Lexer,
 
     private fun parseExpression(lowest: OpPrecedence): Expression? {
         val prefix = this.prefixParseFns[this.curToken!!.type] ?: return null
+        if(prefix == null) {
+            this.noPrefixParseFnError(this.curToken!!.type)
+            return null
+        }
         return prefix?.invoke()
     }
 
@@ -95,7 +110,6 @@ class Parser(val lexer: Lexer,
         return this.peekToken?.type == t
     }
 
-
     private fun expectPeek(t: TokenType): Boolean {
         if(this.peekTokenIs(t)) {
             this.nextToken()
@@ -121,5 +135,19 @@ class Parser(val lexer: Lexer,
 
     fun parseIdentifier(): Identifier {
         return Identifier(this.curToken!!, this.curToken!!.literal)
+    }
+
+    fun parseIntegerLiteral(): Expression {
+        val literal = IntegerLiteral(this.curToken!!)
+        val value = this.curToken?.literal?.toIntOrNull()
+        if(value == null) {
+            this.erros.add("could not parse ${this.curToken?.literal} as integer")
+        }
+        literal.value = value
+        return literal
+    }
+
+    fun noPrefixParseFnError(t: TokenType) {
+        this.erros.add("no prefix parse function for $t found")
     }
 }
