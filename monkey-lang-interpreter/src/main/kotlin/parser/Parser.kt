@@ -18,15 +18,16 @@ private val precedences = mapOf(
     )
 
 class Parser(val lexer: Lexer,
-             var curToken: Token?,
-             var peekToken: Token?,
+             var curToken: Token,
+             var peekToken: Token,
              val erros: MutableList<String> = mutableListOf(),
              val prefixParseFns: MutableMap<TokenType, () -> Expression> = mutableMapOf(),
              val infixParseFns: MutableMap<TokenType, (Expression) -> Expression> = mutableMapOf()
     ) {
     companion object {
         fun new(lexer: Lexer): Parser {
-            val parser = Parser(lexer, null, null)
+            var tokens = initTokens(lexer)
+            val parser = Parser(lexer, tokens.first, tokens.second)
             parser.registerPrefixFn(TokenType.IDENT, parser::parseIdentifier)
             parser.registerPrefixFn(TokenType.INT, parser::parseIntegerLiteral)
             parser.registerPrefixFn(TokenType.BANG, parser::parsePrefixExpression)
@@ -42,16 +43,17 @@ class Parser(val lexer: Lexer,
             parser.registerInfixFn(TokenType.NOT_EQ, parser::parseInfixExpression)
             parser.registerInfixFn(TokenType.LT, parser::parseInfixExpression)
             parser.registerInfixFn(TokenType.GT, parser::parseInfixExpression)
-
-            parser.nextToken()
-            parser.nextToken()
+           
             return parser
+        }
+        private fun initTokens(lexer: Lexer): Pair<Token, Token> {
+            return Pair(lexer.nextToken(), lexer.nextToken())
         }
     }
 
     fun parseProgram(): Program {
         val program = Program(mutableListOf())
-        while (this.curToken?.type != TokenType.EOF) {
+        while (this.curToken.type != TokenType.EOF) {
             val stmt = this.parseStatement()
             if(stmt != null) {
                 program.statements.add(stmt)
@@ -60,33 +62,32 @@ class Parser(val lexer: Lexer,
         }
         return program
     }
-
+  
     fun nextToken() {
         this.curToken = this.peekToken
         this.peekToken = this.lexer.nextToken()
     }
 
-
     private fun parseBoolean(): Expression {
-        return Boolean_(this.curToken!!, this.curTokenIs(TokenType.TRUE))
+        return Boolean_(this.curToken, this.curTokenIs(TokenType.TRUE))
     }
 
     private fun parseInfixExpression(left: Expression): Expression {
         val precedence = this.curPrecedence()
         this.nextToken()
         val right = this.parseExpression(precedence)
-        return InfixExpression(this.curToken!!, left, this.curToken!!.literal,  right!!)
+        return InfixExpression(this.curToken, left, this.curToken.literal,  right!!)
     }
 
     private fun parsePrefixExpression(): Expression {
-        val expression = PrefixExpression(this.curToken!!, this.curToken!!.literal)
+        val expression = PrefixExpression(this.curToken, this.curToken.literal)
         this.nextToken()
         expression.right = this.parseExpression(OpPrecedence.PREFIX)
         return expression
     }
 
     private fun parseStatement(): Statement? {
-        return when(this.curToken?.type) {
+        return when(this.curToken.type) {
             TokenType.LET -> this.parseLetStatement()
             TokenType.RETURN -> this.parseReturnStatement()
             else -> this.parseExpressionStatement()
@@ -94,7 +95,7 @@ class Parser(val lexer: Lexer,
     }
 
     private fun parseExpressionStatement(): ExpressionStatement {
-        val stmt = ExpressionStatement(this.curToken!!, this.parseExpression(OpPrecedence.LOWEST))
+        val stmt = ExpressionStatement(this.curToken, this.parseExpression(OpPrecedence.LOWEST))
         if(this.peekTokenIs(TokenType.SEMICOLON)) {
             this.nextToken()
         }
@@ -102,9 +103,9 @@ class Parser(val lexer: Lexer,
     }
 
     private fun parseExpression(precedence: OpPrecedence): Expression? {
-        val prefix = this.prefixParseFns[this.curToken!!.type] ?: return null
+        val prefix = this.prefixParseFns[this.curToken.type] ?: return null
         if(prefix == null) {
-            this.noPrefixParseFnError(this.curToken!!.type)
+            this.noPrefixParseFnError(this.curToken.type)
             return null
         }
         var leftExp = prefix.invoke()
@@ -117,7 +118,7 @@ class Parser(val lexer: Lexer,
     }
 
     private fun parseReturnStatement(): ReturnStatement {
-        val stmt = ReturnStatement(this.curToken!!, null)
+        val stmt = ReturnStatement(this.curToken, null)
         this.nextToken()
         // TODO skip expression
         while (!this.curTokenIs(TokenType.SEMICOLON)) {
@@ -127,11 +128,11 @@ class Parser(val lexer: Lexer,
     }
 
     private fun parseLetStatement(): LetStatement? {
-        val stmt = LetStatement(this.curToken!!, null, null)
+        val stmt = LetStatement(this.curToken, null, null)
         if(!this.expectPeek(TokenType.IDENT)) {
             return null
         }
-        stmt.name = Identifier(this.curToken!!, this.curToken!!.literal)
+        stmt.name = Identifier(this.curToken, this.curToken.literal)
         if(!this.expectPeek(TokenType.ASSIGN)) {
             return null
         }
@@ -144,7 +145,7 @@ class Parser(val lexer: Lexer,
     }
 
     private fun curTokenIs(t: TokenType): Boolean {
-        return this.curToken?.type == t
+        return this.curToken.type == t
     }
 
     private fun peekTokenIs(t: TokenType): Boolean {
@@ -175,14 +176,14 @@ class Parser(val lexer: Lexer,
     }
 
     private fun parseIdentifier(): Identifier {
-        return Identifier(this.curToken!!, this.curToken!!.literal)
+        return Identifier(this.curToken, this.curToken.literal)
     }
 
     private fun parseIntegerLiteral(): Expression {
-        val literal = IntegerLiteral(this.curToken!!)
-        val value = this.curToken?.literal?.toIntOrNull()
+        val literal = IntegerLiteral(this.curToken)
+        val value = this.curToken.literal?.toIntOrNull()
         if(value == null) {
-            this.erros.add("could not parse ${this.curToken?.literal} as integer")
+            this.erros.add("could not parse ${this.curToken.literal} as integer")
         }
         literal.value = value
         return literal
@@ -197,6 +198,6 @@ class Parser(val lexer: Lexer,
     }
 
     private fun curPrecedence(): OpPrecedence {
-        return precedences[this.curToken!!.type] ?: OpPrecedence.LOWEST
+        return precedences[this.curToken.type] ?: OpPrecedence.LOWEST
     }
 }
