@@ -1,6 +1,6 @@
 package token
 
-enum class TokenType(value: String) {
+enum class TokenType(val value: String) {
     ILLEGAL("ILLEGAL"),
     EOF("EOF"),
     IDENT("IDENT"), // add, foobar, x, y, ...
@@ -31,5 +31,9 @@ enum class TokenType(value: String) {
     RETURN("RETURN"),
 
     EQ("=="),
-    NOT_EQ("!="),
+    NOT_EQ("!=");
+
+    override fun toString(): String {
+        return this.value
+    }
 }
