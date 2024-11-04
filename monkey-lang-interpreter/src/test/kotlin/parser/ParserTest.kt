@@ -22,4 +22,13 @@ class ParserTest {
         val ident = stmt.expression as Identifier
         Assert.assertEquals(input, ident.value)
     }
+
+    @Test
+    fun testParsingPrefixExpression() {
+        val input = "5+3;"
+        val parser = Parser.new(Lexer.new(input))
+        val program = parser.parseProgram()
+        val statements = program.statements
+        statements.forEach { println(it) }
+    }
 }
