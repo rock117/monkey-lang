@@ -183,9 +183,10 @@ class Parser(val lexer: Lexer,
 
     private fun parseInfixExpression(left: Expression?): Expression? {
         val precedence = this.curPrecedence()
+        val token = this.curToken
         this.nextToken()
         val right = this.parseExpression(precedence)
-        return InfixExpression(this.curToken, left!!, this.curToken.literal,  right!!)
+        return InfixExpression(token, left!!, token.literal,  right!!)
     }
 
     private fun parsePrefixExpression(): Expression? {
