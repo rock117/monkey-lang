@@ -6,7 +6,7 @@ import token.Token
  * @param token return token
  * @param returnValue
  */
-class ReturnStatement(val token: Token, var returnValue: Expression?): Statement {
+data class ReturnStatement(val token: Token, var returnValue: Expression?): Statement {
     override fun statementNode() {
     }
 

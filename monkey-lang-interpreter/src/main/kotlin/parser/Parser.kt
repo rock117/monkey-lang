@@ -246,6 +246,7 @@ class Parser(val lexer: Lexer,
         if(!this.expectPeek(TokenType.ASSIGN)) {
             return null
         }
+        this.nextToken()
         stmt.value = this.parseExpression(OpPrecedence.LOWEST)
         if (this.peekTokenIs(TokenType.SEMICOLON)) {
             this.nextToken()
@@ -289,13 +290,12 @@ class Parser(val lexer: Lexer,
     }
 
     private fun parseIntegerLiteral(): Expression {
-        val literal = IntegerLiteral(this.curToken)
+        val token = this.curToken
         val value = this.curToken.literal.toIntOrNull()
         if(value == null) {
             this.erros.add("could not parse ${this.curToken.literal} as integer")
         }
-        literal.value = value
-        return literal
+        return IntegerLiteral(token, value)
     }
 
     private fun noPrefixParseFnError(t: TokenType) {

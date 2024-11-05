@@ -8,7 +8,7 @@ import token.Token
  * @param value
  *
  */
-class LetStatement(val token: Token, var name: Identifier?, var value: Expression?): Statement {
+data class LetStatement(val token: Token, var name: Identifier?, var value: Expression?): Statement {
     override fun statementNode() {
     }
 

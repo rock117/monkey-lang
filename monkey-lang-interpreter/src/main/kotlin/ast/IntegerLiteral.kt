@@ -2,7 +2,7 @@ package ast
 
 import token.Token
 
-class IntegerLiteral(val token: Token, var value: Int? = null): Expression {
+data class IntegerLiteral(val token: Token, val value: Int?): Expression {
     override fun expressionNode() {
     }
 

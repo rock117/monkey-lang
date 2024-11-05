@@ -2,7 +2,7 @@ package ast
 
 import token.Token
 
-class Boolean_(val token: Token, val value: Boolean): Expression {
+data class Boolean_(val token: Token, val value: Boolean): Expression {
     override fun expressionNode() {
     }
 

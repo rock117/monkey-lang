@@ -24,6 +24,9 @@ object repl {
     }
 
     private fun printParserErrors(erros: List<String>) {
+        println(MONKEY_FACE)
+        println("Woops! We ran into some monkey business here!")
+        println(" parser errors:")
         erros.forEach {
             println("\t$it")
         }
@@ -37,4 +40,3 @@ fun readResourceFile(resourceName: String): String {
     val file = File(resourceUrl.toURI())
     return file.readText(Charsets.UTF_8)
 }
-
