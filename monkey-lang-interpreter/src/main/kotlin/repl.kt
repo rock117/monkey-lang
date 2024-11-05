@@ -17,9 +17,10 @@ object repl {
                 printParserErrors(parser.erros)
                 continue
             }
-
-            println(program.string())
-            println()
+            val evaluated = evaluator.eval(program)
+            if(evaluated != null) {
+                println(evaluated.inspect())
+            }
         }
     }
 

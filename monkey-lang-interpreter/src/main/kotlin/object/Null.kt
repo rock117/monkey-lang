@@ -2,7 +2,7 @@ package `object`
 
 import Object_
 
-class Null: Object_ {
+object Null: Object_ {
     override fun type(): ObjectType {
         return ObjectType.NULL
     }
