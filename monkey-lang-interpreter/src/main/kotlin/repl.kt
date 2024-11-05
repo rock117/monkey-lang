@@ -1,7 +1,11 @@
 import lexer.Lexer
 import parser.Parser
 
+import java.io.File
+import java.net.URL
+
 object repl {
+    val MONKEY_FACE = readResourceFile("MONKEY_FACE.mk")
     val PROMPT = ">> "
     fun start(){
         while (true) {
@@ -27,16 +31,10 @@ object repl {
 
 }
 
+fun readResourceFile(resourceName: String): String {
+    val classLoader = Thread.currentThread().contextClassLoader
+    val resourceUrl: URL = classLoader.getResource(resourceName)!!
+    val file = File(resourceUrl.toURI())
+    return file.readText(Charsets.UTF_8)
+}
 
-private val  MONKEY_FACE = """            __,__
-.--.  .-"     "-.  .--.
-/ .. \/  .-. .-.  \/ .. \
-| |  '|  /   Y   \  |'  | |
-| \   \  \ 0 | 0 /  /   / |
-\ '- ,\.-"""""""-./, -' /
-''-' /_   ^ ^   _\ '-''
-|  \._   _./  |
-\   \ '~' /   /
-'._ '-=-' _.'
-'-----'
-"""
