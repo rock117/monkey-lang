@@ -141,7 +141,7 @@ class Parser(val lexer: Lexer,
     private fun parseBlockStatement(): BlockStatement {
         val block = BlockStatement(this.curToken)
         this.nextToken()
-        while (!this.curTokenIs(TokenType.RBRACE) && this.curTokenIs(TokenType.EOF)) {
+        while (!this.curTokenIs(TokenType.RBRACE) && !this.curTokenIs(TokenType.EOF)) {
             val stmt = this.parseStatement()
             if(stmt != null) {
                 block.statements.add(stmt)

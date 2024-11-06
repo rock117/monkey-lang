@@ -85,8 +85,15 @@ class ParserTest {
 
     }
 
-    fun testIfBlockStatement() {
-
+    @Test
+    fun testIfExpression() {
+        val input = "if(x < y) { x }"
+        val parser = Parser.new(Lexer.new(input))
+        val program = parser.parseProgram()
+        val statements = program.statements
+        Assert.assertEquals(statements.size, 1, "more than 1 statements")
+        val expStmt = statements[0] as ExpressionStatement
+        Assert.assertNotNull(expStmt)
     }
 
     fun testFunctionLiteral() {
