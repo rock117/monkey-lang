@@ -73,7 +73,7 @@ class Parser(val lexer: Lexer,
             this.nextToken()
             args.add(this.parseExpression(OpPrecedence.LOWEST)!!)
         }
-        if(!this.peekTokenIs(TokenType.RPAREN)) {
+        if(!this.expectPeek(TokenType.RPAREN)) {
             // return null TODO
             return args
         }
@@ -82,11 +82,11 @@ class Parser(val lexer: Lexer,
 
     private fun parseFunctionLiteral(): Expression? {
         val token = this.curToken
-        if(!this.peekTokenIs(TokenType.LPAREN)) {
+        if(!this.expectPeek(TokenType.LPAREN)) {
             return null
         }
         val params  = this.parseFunctionParameters()
-        if(!this.peekTokenIs(TokenType.LBRACE)) {
+        if(!this.expectPeek(TokenType.LBRACE)) {
             return null
         }
         val body = this.parseBlockStatement()
@@ -106,7 +106,7 @@ class Parser(val lexer: Lexer,
             this.nextToken()
             identifiers.add(Identifier(this.curToken, this.curToken.literal))
         }
-        if(!this.peekTokenIs(TokenType.RPAREN)) {
+        if(!this.expectPeek(TokenType.RPAREN)) {
            // return null //TODO
             return identifiers
         }
@@ -238,20 +238,20 @@ class Parser(val lexer: Lexer,
     }
 
     private fun parseLetStatement(): LetStatement? {
-        val stmt = LetStatement(this.curToken, null, null)
+        val token = this.curToken
         if(!this.expectPeek(TokenType.IDENT)) {
             return null
         }
-        stmt.name = Identifier(this.curToken, this.curToken.literal)
+        val name = Identifier(this.curToken, this.curToken.literal)
         if(!this.expectPeek(TokenType.ASSIGN)) {
             return null
         }
         this.nextToken()
-        stmt.value = this.parseExpression(OpPrecedence.LOWEST)
+        val value = this.parseExpression(OpPrecedence.LOWEST)
         if (this.peekTokenIs(TokenType.SEMICOLON)) {
             this.nextToken()
         }
-        return stmt
+        return LetStatement(token, name, value!!)
     }
 
     private fun curTokenIs(t: TokenType): Boolean {

@@ -1,4 +1,5 @@
 import lexer.Lexer
+import `object`.Environment
 import parser.Parser
 
 import java.io.File
@@ -8,6 +9,7 @@ object repl {
     val MONKEY_FACE = readResourceFile("MONKEY_FACE.mk")
     val PROMPT = ">> "
     fun start(){
+        val env = Environment()
         while (true) {
             print(PROMPT)
             val line = readlnOrNull() ?: return
@@ -17,7 +19,7 @@ object repl {
                 printParserErrors(parser.erros)
                 continue
             }
-            val evaluated = evaluator.eval(program)
+            val evaluated = evaluator.eval(program, env)
             if(evaluated != null) {
                 println(evaluated.inspect())
             }

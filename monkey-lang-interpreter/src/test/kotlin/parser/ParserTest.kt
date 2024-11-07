@@ -96,12 +96,22 @@ class ParserTest {
         Assert.assertNotNull(expStmt)
     }
 
-    fun testFunctionLiteral() {
-
+    @Test
+    fun testFunctionLiteralParsing() {
+        val input = "fn(x, y) { x + y;}"
+        val parser = Parser.new(Lexer.new(input))
+        val program = parser.parseProgram()
+        val statements = program.statements
+        Assert.assertEquals(statements.size, 1, "more than 1 statements")
     }
 
-    fun testCallExpression() {
-
+    @Test
+    fun testCallExpressionParsing() {
+        val input = "let add = fn(x, y) { x + y;}; add(1, 2);"
+        val parser = Parser.new(Lexer.new(input))
+        val program = parser.parseProgram()
+        val statements = program.statements
+        Assert.assertEquals(statements.size, 2, "more than 1 statements")
     }
 
 

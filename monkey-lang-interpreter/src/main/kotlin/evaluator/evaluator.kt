@@ -6,42 +6,106 @@ import ast.Boolean_
 import `object`.*
 import `object`.Boolean_.Companion.TRUE
 import `object`.Boolean_.Companion.FALSE
+import `object`.Function
 
-fun eval(node: Node?): Object_? {
+fun eval(node: Node?, env: Environment): Object_? {
     return when (node) {
-        is Program -> evalProgram(node)
-        is ExpressionStatement -> eval(node.expression)
+        is Program -> evalProgram(node, env)
+        is ExpressionStatement -> eval(node.expression, env)
         is IntegerLiteral -> Integer(node.value!!)
         is Boolean_ -> if (node.value) TRUE else FALSE
         is PrefixExpression -> {
-            val right = eval(node.right)
+            val right = eval(node.right, env)
             if(isError(right)) right else evalPrefixExpression(node.operator, right)
         }
         is InfixExpression -> {
-            val left = eval(node.left)
+            val left = eval(node.left, env)
             if(isError(left)) {
                 return left
             }
-            val right = eval(node.right)
+            val right = eval(node.right, env)
             if(isError(right)) {
                 return right
             }
             evalInfixExpression(node.operator, left, right)
         }
-        is BlockStatement -> evalBlockStatement(node)
-        is IfExpression -> evalIfExpression(node)
+        is BlockStatement -> evalBlockStatement(node, env)
+        is IfExpression -> evalIfExpression(node, env)
         is ReturnStatement -> {
-            val value = eval(node.returnValue)
+            val value = eval(node.returnValue, env)
             if(isError(value)) value else ReturnValue(value!!)
+        }
+        is LetStatement -> {
+            val value = eval(node.value, env)!!
+            if(isError(value)) {
+                return value
+            }
+            env.set(node?.name?.value!!, value)
+            value
+        }
+        is Identifier -> evalIdentifier(node, env)
+        is FunctionLiteral -> Function(parameters = node.parameters, body = node.body, env)
+        is CallExpression -> {
+            val function = eval(node.function, env)
+            if(isError(function)) {
+                return function
+            }
+            val args = evalExpressions(node.arguments, env)
+            if(args.size == 1 && isError(args[0])) {
+                return args[0]
+            }
+            return applyFunction(function, args)
         }
         else -> null
     }
 }
 
-private fun evalBlockStatement(node: BlockStatement): Object_? {
+fun applyFunction(function: Object_?, args: List<Object_?>): Object_? {
+    if(function !is Function) {
+        return newError("not a function: ${function?.type()}")
+    }
+    val extendedEnv = extendFunctionEnv(function, args)
+    val evaluated = eval(function.body, extendedEnv)
+    return unwrapReturnValue(evaluated)
+}
+
+fun unwrapReturnValue(obj: Object_?): Object_? {
+    return if (obj is ReturnValue) obj.value else obj
+}
+
+fun extendFunctionEnv(fn: Function, args: List<Object_?>): Environment {
+    val env = Environment.newEnclosingEnvironment(fn.env)
+    fn.parameters.forEachIndexed { index, param ->
+        env.set(param.value, args[index]!!)
+    }
+    return env
+}
+
+private fun evalExpressions(exps: List<Expression>, env: Environment): List<Object_?> {
+    val result = mutableListOf<Object_?>()
+    for(exp in exps) {
+        val evaluated = eval(exp, env)
+        if(isError(evaluated)) {
+            return listOf(evaluated)
+        }
+        result.add(evaluated)
+    }
+    return result
+}
+
+private fun evalIdentifier(node: Identifier, env: Environment): Object_ {
+    val value = env.get(node.value)
+    if(value == null) {
+        return newError("Identifier not found: ${node.value}")
+    } else  {
+        return value
+    }
+}
+
+private fun evalBlockStatement(node: BlockStatement, env: Environment): Object_? {
     var result: Object_? = null
     for (statement in node.statements) {
-        result = eval(statement)
+        result = eval(statement, env)
         if(result is ReturnValue || result is Error_) {
             return result
         }
@@ -49,10 +113,10 @@ private fun evalBlockStatement(node: BlockStatement): Object_? {
     return result
 }
 
-private fun evalProgram(program: Program): Object_? {
+private fun evalProgram(program: Program, env: Environment): Object_? {
     var result: Object_? = null
     for (statement in program.statements) {
-        result = eval(statement)
+        result = eval(statement, env)
         if(result is ReturnValue) {
             return result.value
         } else if(result is Error_) {
@@ -62,15 +126,15 @@ private fun evalProgram(program: Program): Object_? {
     return result
 }
 
-private fun evalIfExpression(node: IfExpression): Object_? {
-    val condition = eval(node.condition)
+private fun evalIfExpression(node: IfExpression, env: Environment): Object_? {
+    val condition = eval(node.condition, env)
     if(isError(condition)) {
         return condition
     }
     return if(isTruety(condition!!)) {
-        eval(node.consequence)
+        eval(node.consequence, env)
     } else if(node.alternative != null) {
-        eval(node.alternative!!)
+        eval(node.alternative!!, env)
     } else {
         Null
     }
@@ -114,10 +178,10 @@ fun evalIntegerInfixExpression(operator: String, left: Integer, right: Integer):
     }
 }
 
-private fun evalStatements(statements: List<Statement>): Object_? {
+private fun evalStatements(statements: List<Statement>, env: Environment): Object_? {
     var result: Object_? = null
     for (statement in statements) {
-        result = eval(statement)
+        result = eval(statement, env)
         if(result is ReturnValue) {
             return result.value
         }

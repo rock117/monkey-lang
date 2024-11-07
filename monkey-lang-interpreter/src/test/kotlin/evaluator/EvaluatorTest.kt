@@ -2,10 +2,7 @@ package evaluator
 
 import Object_
 import lexer.Lexer
-import `object`.Boolean_
-import `object`.Error_
-import `object`.Integer
-import `object`.Null
+import `object`.*
 import org.testng.Assert
 import org.testng.annotations.Test
 import parser.Parser
@@ -123,9 +120,62 @@ class EvaluatorTest {
         }
     }
 
+    @Test
+    fun testLetStatement() {
+        val tests = listOf(
+            Pair("let a = 5; a;", 5),
+            Pair("let a = 5*5; a;", 25),
+            Pair("let a = 5; let b = a; let c = a + b + 5; c;", 15),
+        )
+        for (test in tests) {
+            val obj = testEval(test.first)
+            val n = obj as Integer
+            Assert.assertEquals(n.value, test.second)
+        }
+    }
+
+    @Test
+    fun testFunctionApplication() {
+        val tests = listOf(
+            Pair("let identity = fn(x) { x; }; identity(5);", 5),
+            Pair("let identity = fn(x) { return x; }; identity(5);", 5),
+            Pair("let double = fn(x) { x * 2; }; double(5);", 10),
+            Pair("let add = fn(x, y) { x + y; }; add(5, 5);", 10),
+            Pair("let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20),
+            Pair("fn(x) { x; }(5)", 5),
+        )
+        for (test in tests) {
+            println("test: ${test.first}")
+            val obj = testEval(test.first)
+            val n = obj as Integer
+            Assert.assertEquals(n.value, test.second)
+        }
+    }
+
     fun testEval(input: String): Object_? {
         val parser = Parser.new(Lexer.new(input))
         val program = parser.parseProgram()
-        return eval(program)
+        return eval(program, Environment())
     }
 }
+
+
+// evaluator/evaluator_test.go
+
+//func TestFunctionApplication(t *testing.T) {
+//    tests := []struct {
+//        input    string
+//                expected int64
+//    }{
+//        {"let identity = fn(x) { x; }; identity(5);", 5},
+//        {"let identity = fn(x) { return x; }; identity(5);", 5},
+//        {"let double = fn(x) { x * 2; }; double(5);", 10},
+//        {"let add = fn(x, y) { x + y; }; add(5, 5);", 10},
+//        {"let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20},
+//        {"fn(x) { x; }(5)", 5},
+//    }
+//
+//    for _, tt := range tests {
+//        testIntegerObject(t, testEval(tt.input), tt.expected)
+//    }
+//}

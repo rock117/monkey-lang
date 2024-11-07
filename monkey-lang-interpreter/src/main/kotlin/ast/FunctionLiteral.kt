@@ -2,6 +2,9 @@ package ast
 
 import token.Token
 
+/**
+ * @param token token `fn`
+ */
 data class FunctionLiteral(val token: Token, val parameters: MutableList<Identifier>, val body: BlockStatement): Expression {
     override fun expressionNode() {
 
