@@ -75,6 +75,7 @@ class Lexer(private val input: String, var position: Int = 0, var readPosition: 
             '>' -> Token(TokenType.GT, this.ch)
             '{' -> Token(TokenType.LBRACE, this.ch)
             '}' -> Token(TokenType.RBRACE, this.ch)
+            '"' -> Token(TokenType.STRING, this.readString())
             0.toChar() -> Token(TokenType.EOF, "")
             else -> {
                 if(isLetter(this.ch)) {
@@ -89,6 +90,17 @@ class Lexer(private val input: String, var position: Int = 0, var readPosition: 
         }
         this.readChar()
         return token
+    }
+
+    private fun readString(): String {
+        val position = this.position + 1
+        while (true) {
+            this.readChar()
+            if(this.ch == '"' || this.ch == 0.toChar()) {
+                break
+            }
+        }
+        return this.input.substring(position, this.position)
     }
 
     fun readIdentifier(): String {

@@ -31,7 +31,8 @@ enum class TokenType(val value: String) {
     RETURN("RETURN"),
 
     EQ("=="),
-    NOT_EQ("!=");
+    NOT_EQ("!="),
+    STRING("STRING");
 
     override fun toString(): String {
         return this.value
