@@ -1,5 +1,5 @@
 package `object`
 
 enum class ObjectType {
-    INTEGER, BOOLEAN, NULL, RETURN, ERROR, FUNCTION
+    INTEGER, BOOLEAN, NULL, RETURN, ERROR, FUNCTION, STRING
 }

@@ -12,7 +12,10 @@ class LexerTest {
     
         let add = fn(x, y) {
             x + y;
-        };"""
+        };
+        "foobar"
+        
+        """
 
         val tests = arrayOf(
             TokenType.LET to "let",

@@ -38,7 +38,7 @@ class Parser(val lexer: Lexer,
             parser.registerPrefixFn(TokenType.LPAREN, parser::parseGroupedExpression)
             parser.registerPrefixFn(TokenType.IF, parser::parseIfExpression)
             parser.registerPrefixFn(TokenType.FUNCTION, parser::parseFunctionLiteral)
-
+            parser.registerPrefixFn(TokenType.STRING, parser::parseStringLiteral)
 
             parser.registerInfixFn(TokenType.PLUS, parser::parseInfixExpression)
             parser.registerInfixFn(TokenType.MINUS, parser::parseInfixExpression)
@@ -54,6 +54,10 @@ class Parser(val lexer: Lexer,
         private fun initTokens(lexer: Lexer): Pair<Token, Token> {
             return Pair(lexer.nextToken(), lexer.nextToken())
         }
+    }
+
+    private fun parseStringLiteral(): Expression? {
+        return StringLiteral(this.curToken, this.curToken.literal)
     }
 
     private fun parseCallExpression(function: Expression?): Expression? {
