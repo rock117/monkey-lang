@@ -8,6 +8,21 @@ import `object`.Boolean_.Companion.TRUE
 import `object`.Boolean_.Companion.FALSE
 import `object`.Function
 
+val builtins = mapOf(
+    "len" to Builtin { args: List<Object_?> ->
+        if(args.size != 1) {
+            newError("wrong member of arguments, got=${args.size}, want=1")
+        } else {
+            val type = args[0]?.type()
+            when(type) {
+                ObjectType.STRING -> Integer((args[0] as String_).value.length)
+                else -> newError("argument to `len` not supported got ${args[0]?.type()}")
+            }
+        }
+    }
+)
+
+
 fun eval(node: Node?, env: Environment): Object_? {
     return when (node) {
         is Program -> evalProgram(node, env)
@@ -67,12 +82,15 @@ fun eval(node: Node?, env: Environment): Object_? {
 }
 
 fun applyFunction(function: Object_?, args: List<Object_?>): Object_? {
-    if (function !is Function) {
-        return newError("not a function: ${function?.type()}")
+    return when (function?.type()) {
+        ObjectType.FUNCTION -> {
+            val extendedEnv = extendFunctionEnv(function as Function, args)
+            val evaluated = eval(function.body, extendedEnv)
+            unwrapReturnValue(evaluated)
+        }
+        ObjectType.BUILTIN -> (function as Builtin).fn(args)
+        else -> newError("not a function: ${function?.type()} ")
     }
-    val extendedEnv = extendFunctionEnv(function, args)
-    val evaluated = eval(function.body, extendedEnv)
-    return unwrapReturnValue(evaluated)
 }
 
 fun unwrapReturnValue(obj: Object_?): Object_? {
@@ -101,10 +119,14 @@ private fun evalExpressions(exps: List<Expression>, env: Environment): List<Obje
 
 private fun evalIdentifier(node: Identifier, env: Environment): Object_ {
     val value = env.get(node.value)
-    if (value == null) {
+    if (value != null) {
+        return value
+    }
+    val builtin = builtins[node.value]
+    if (builtin == null) {
         return newError("Identifier not found: ${node.value}")
     } else {
-        return value
+        return builtin
     }
 }
 
