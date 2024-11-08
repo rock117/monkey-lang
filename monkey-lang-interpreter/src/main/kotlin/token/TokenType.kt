@@ -34,7 +34,8 @@ enum class TokenType(val value: String) {
     NOT_EQ("!="),
     STRING("STRING"),
     LBRACKET("["),
-    RBRACKET("]");
+    RBRACKET("]"),
+    COLON(":");
 
     override fun toString(): String {
         return this.value
