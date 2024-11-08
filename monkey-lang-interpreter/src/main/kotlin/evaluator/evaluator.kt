@@ -4,24 +4,19 @@ import Object_
 import ast.*
 import ast.Boolean_
 import `object`.*
+import `object`.Array
 import `object`.Boolean_.Companion.TRUE
 import `object`.Boolean_.Companion.FALSE
 import `object`.Function
+import `object`.BuiltinFns
 
 val builtins = mapOf(
-    "len" to Builtin { args: List<Object_?> ->
-        if(args.size != 1) {
-            newError("wrong member of arguments, got=${args.size}, want=1")
-        } else {
-            val type = args[0]?.type()
-            when(type) {
-                ObjectType.STRING -> Integer((args[0] as String_).value.length)
-                else -> newError("argument to `len` not supported got ${args[0]?.type()}")
-            }
-        }
-    }
+    "len" to BuiltinFns.len(),
+    "first" to BuiltinFns.first(),
+    "last" to BuiltinFns.last(),
+    "rest" to BuiltinFns.rest(),
+    "push" to BuiltinFns.push()
 )
-
 
 fun eval(node: Node?, env: Environment): Object_? {
     return when (node) {
@@ -77,11 +72,46 @@ fun eval(node: Node?, env: Environment): Object_? {
         }
 
         is StringLiteral -> String_(node.value)
+        is ArrayLiteral -> {
+            val elements = evalExpressions(node.elements, env)
+            if(elements.size == 1 && isError(elements[0])) {
+                elements[0]
+            } else {
+                Array(elements)
+            }
+        }
+        is IndexExpression -> {
+            val left = eval(node.left, env)
+            if(isError(left)) {
+                left
+            } else {
+                val index = eval(node.index, env)
+                if(isError(index)) {
+                    index
+                } else {
+                    evalIndexExpression(left, index)
+                }
+            }
+        }
         else -> null
     }
 }
 
-fun applyFunction(function: Object_?, args: List<Object_?>): Object_? {
+private fun evalIndexExpression(left: Object_?, index: Object_?): Object_? {
+    return if(left is Array && index is Integer) {
+        evalArrayIndexExpression(left, index)
+    } else {
+        newError("index operator not supported: ${left?.type()}")
+    }
+}
+
+private fun evalArrayIndexExpression(arrayObj: Array, index: Integer): Object_? {
+    val idx = index.value
+    val max = arrayObj.elements.size - 1
+    return if(idx < 0 || idx > max) Null else arrayObj.elements[idx]
+}
+
+private fun applyFunction(function: Object_?, args: List<Object_?>): Object_? {
     return when (function?.type()) {
         ObjectType.FUNCTION -> {
             val extendedEnv = extendFunctionEnv(function as Function, args)
@@ -93,11 +123,11 @@ fun applyFunction(function: Object_?, args: List<Object_?>): Object_? {
     }
 }
 
-fun unwrapReturnValue(obj: Object_?): Object_? {
+private fun unwrapReturnValue(obj: Object_?): Object_? {
     return if (obj is ReturnValue) obj.value else obj
 }
 
-fun extendFunctionEnv(fn: Function, args: List<Object_?>): Environment {
+private fun extendFunctionEnv(fn: Function, args: List<Object_?>): Environment {
     val env = Environment.newEnclosingEnvironment(fn.env)
     fn.parameters.forEachIndexed { index, param ->
         env.set(param.value, args[index]!!)
@@ -253,7 +283,7 @@ private fun evalBangOperatorExpression(right: Object_?): Object_ {
     }
 }
 
-private fun newError(msg: String): Error_ {
+fun newError(msg: String): Error_ {
     return Error_(msg)
 }
 

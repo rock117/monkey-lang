@@ -114,9 +114,56 @@ class ParserTest {
         Assert.assertEquals(statements.size, 2, "more than 1 statements")
     }
 
+    @Test
+    fun testParsingArrayLiteral() {
+        val input = "[1, 2 * 2, 3 + 3]"
+        val parser = Parser.new(Lexer.new(input))
+        val program = parser.parseProgram()
+        val expStatement = program.statements[0] as ExpressionStatement
+        val arrayLiteral = expStatement.expression as ArrayLiteral
+        Assert.assertEquals(arrayLiteral.elements.size, 3)
+        println("array is: ${arrayLiteral.string()}")
+    }
+
+    @Test
+    fun testParsingIndexExpression() {
+        val input = "[1, 2 * 2, 3 + 3]"
+        val parser = Parser.new(Lexer.new(input))
+        val program = parser.parseProgram()
+        val expStatement = program.statements[0] as ExpressionStatement
+        val arrayLiteral = expStatement.expression as ArrayLiteral
+        Assert.assertEquals(arrayLiteral.elements.size, 3)
+        println("array is: ${arrayLiteral.string()}")
+    }
 
     @Test
     fun testParseGroupExpression() {
          // TODO
     }
 }
+
+//
+//// parser/parser_test.go
+//
+//func TestParsingArrayLiterals(t *testing.T) {
+//    input := "[1, 2 * 2, 3 + 3]"
+//
+//    l := lexer.New(input)
+//    p := New(l)
+//    program := p.ParseProgram()
+//    checkParserErrors(t, p)
+//
+//    stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+//    array, ok := stmt.Expression.(*ast.ArrayLiteral)
+//    if !ok {
+//        t.Fatalf("exp not ast.ArrayLiteral. got=%T", stmt.Expression)
+//    }
+//
+//    if len(array.Elements) != 3 {
+//        t.Fatalf("len(array.Elements) not 3. got=%d", len(array.Elements))
+//    }
+//
+//    testIntegerLiteral(t, array.Elements[0], 1)
+//    testInfixExpression(t, array.Elements[1], 2, "*", 2)
+//    testInfixExpression(t, array.Elements[2], 3, "+", 3)
+//}

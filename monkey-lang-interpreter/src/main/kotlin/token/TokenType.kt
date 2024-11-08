@@ -32,7 +32,9 @@ enum class TokenType(val value: String) {
 
     EQ("=="),
     NOT_EQ("!="),
-    STRING("STRING");
+    STRING("STRING"),
+    LBRACKET("["),
+    RBRACKET("]");
 
     override fun toString(): String {
         return this.value

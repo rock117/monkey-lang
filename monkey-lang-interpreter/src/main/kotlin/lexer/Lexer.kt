@@ -75,6 +75,8 @@ class Lexer(private val input: String, var position: Int = 0, var readPosition: 
             '>' -> Token(TokenType.GT, this.ch)
             '{' -> Token(TokenType.LBRACE, this.ch)
             '}' -> Token(TokenType.RBRACE, this.ch)
+            '[' -> Token(TokenType.LBRACKET, this.ch)
+            ']' -> Token(TokenType.RBRACKET, this.ch)
             '"' -> Token(TokenType.STRING, this.readString())
             0.toChar() -> Token(TokenType.EOF, "")
             else -> {

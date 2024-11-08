@@ -8,4 +8,5 @@ enum class OpPrecedence {
     PRODUCT,
     PREFIX, // -x or !x
     CALL, // myFunction(x)
+    INDEX
 }
