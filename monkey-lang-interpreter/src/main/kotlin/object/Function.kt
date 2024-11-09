@@ -13,4 +13,15 @@ data class Function(val parameters: MutableList<Identifier>, val body: BlockStat
         val params = parameters.map { it.string() }.joinToString(", ")
         return "fn($params) {\n${this.body.string()}\n}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(other is Function) {
+            return parameters == other.parameters && body == other.body && env == other.env
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return parameters.hashCode() + body.hashCode() + env.hashCode()
+    }
 }

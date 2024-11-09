@@ -80,6 +80,7 @@ fun eval(node: Node?, env: Environment): Object_? {
                 Array(elements)
             }
         }
+        is HashLiteral -> evalHashLiteral(node, env)
         is IndexExpression -> {
             val left = eval(node.left, env)
             if(isError(left)) {
@@ -97,12 +98,39 @@ fun eval(node: Node?, env: Environment): Object_? {
     }
 }
 
+private fun evalHashLiteral(node: HashLiteral, env: Environment): Object_? {
+    val pairs = mutableMapOf<Object_, Object_>()
+    for(kv in node.pairs){
+        val keyNode = kv.key
+        val valueNode = kv.value
+        val key = eval(keyNode, env)
+        if(isError(key)){
+            return key
+        }
+        val value = eval(valueNode, env)
+        if(isError(value)){
+            return value
+        }
+        pairs[key!!] = value!!
+    }
+    return Hash(pairs)
+}
+
 private fun evalIndexExpression(left: Object_?, index: Object_?): Object_? {
     return if(left is Array && index is Integer) {
         evalArrayIndexExpression(left, index)
+    } else if(left is Hash) {
+        evalHashIndexExpression(left, index)
     } else {
         newError("index operator not supported: ${left?.type()}")
     }
+}
+
+fun evalHashIndexExpression(hash: Hash, index: Object_?): Object_ {
+    if (index == null) {
+        return Null
+    }
+    return hash[index!!] ?: Null
 }
 
 private fun evalArrayIndexExpression(arrayObj: Array, index: Integer): Object_? {
@@ -245,18 +273,6 @@ fun evalIntegerInfixExpression(operator: String, left: Integer, right: Integer):
         else -> newError("unknown operator: ${left?.type()} $operator ${right?.type()}")
     }
 }
-
-private fun evalStatements(statements: List<Statement>, env: Environment): Object_? {
-    var result: Object_? = null
-    for (statement in statements) {
-        result = eval(statement, env)
-        if (result is ReturnValue) {
-            return result.value
-        }
-    }
-    return result
-}
-
 
 private fun evalPrefixExpression(operator: String, right: Object_?): Object_ {
     return when (operator) {

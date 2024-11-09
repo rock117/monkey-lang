@@ -11,6 +11,17 @@ class Builtin(val fn: (List<Object_?>) -> Object_): Object_ {
     override fun inspect(): String {
         return "builtin function"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(other is Builtin) {
+            return fn == other.fn
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return fn.hashCode()
+    }
 }
 
 object BuiltinFns {

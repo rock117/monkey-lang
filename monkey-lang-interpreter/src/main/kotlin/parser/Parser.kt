@@ -41,6 +41,8 @@ class Parser(val lexer: Lexer,
             parser.registerPrefixFn(TokenType.FUNCTION, parser::parseFunctionLiteral)
             parser.registerPrefixFn(TokenType.STRING, parser::parseStringLiteral)
             parser.registerPrefixFn(TokenType.LBRACKET, parser::parseArrayLiteral)
+            parser.registerPrefixFn(TokenType.LBRACE, parser::parseHashLiteral)
+
 
             parser.registerInfixFn(TokenType.PLUS, parser::parseInfixExpression)
             parser.registerInfixFn(TokenType.MINUS, parser::parseInfixExpression)
@@ -71,6 +73,28 @@ class Parser(val lexer: Lexer,
 
     private fun parseArrayLiteral(): Expression? {
         return ArrayLiteral(this.curToken, this.parseExpressionList(TokenType.RBRACKET))
+    }
+
+    private fun parseHashLiteral(): Expression? {
+        val token = this.curToken
+        val pairs = mutableMapOf<Expression, Expression>()
+        while (!this.peekTokenIs(TokenType.RBRACE)) {
+            this.nextToken()
+            val key = this.parseExpression(OpPrecedence.LOWEST)!!
+            if(!this.expectPeek(TokenType.COLON)) {
+                return null
+            }
+            this.nextToken()
+            val value = this.parseExpression(OpPrecedence.LOWEST)!!
+            pairs[key] = value
+            if(!this.peekTokenIs(TokenType.RBRACE) && !this.expectPeek(TokenType.COMMA)) {
+                return null
+            }
+        }
+        if(!this.expectPeek(TokenType.RBRACE)) {
+            return null
+        }
+        return HashLiteral(token, pairs)
     }
 
     private fun parseExpressionList(end: TokenType): List<Expression> {
@@ -197,7 +221,7 @@ class Parser(val lexer: Lexer,
         return program
     }
   
-    fun nextToken() {
+    private fun nextToken() {
         this.curToken = this.peekToken
         this.peekToken = this.lexer.nextToken()
     }

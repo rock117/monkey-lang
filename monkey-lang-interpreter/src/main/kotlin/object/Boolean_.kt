@@ -16,5 +16,16 @@ data class Boolean_(val value: Boolean) : Object_ {
         val TRUE = Boolean_(true)
         val FALSE = Boolean_(false)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(other is Boolean_) {
+            return value == other.value
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
 }
 
