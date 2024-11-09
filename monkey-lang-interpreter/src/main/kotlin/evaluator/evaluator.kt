@@ -15,7 +15,8 @@ val builtins = mapOf(
     "first" to BuiltinFns.first(),
     "last" to BuiltinFns.last(),
     "rest" to BuiltinFns.rest(),
-    "push" to BuiltinFns.push()
+    "push" to BuiltinFns.push(),
+    "puts" to BuiltinFns.put()
 )
 
 fun eval(node: Node?, env: Environment): Object_? {

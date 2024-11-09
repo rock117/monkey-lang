@@ -111,4 +111,13 @@ object BuiltinFns {
         }
     }
 
+    fun put(): Builtin {
+        return Builtin { args: List<Object_?> ->
+            for (arg in args) {
+                println(arg?.inspect())
+            }
+            Null
+        }
+    }
+
 }
