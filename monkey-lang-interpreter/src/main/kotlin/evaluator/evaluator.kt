@@ -61,6 +61,9 @@ fun eval(node: Node?, env: Environment): Object_? {
         is Identifier -> evalIdentifier(node, env)
         is FunctionLiteral -> Function(parameters = node.parameters, body = node.body, env)
         is CallExpression -> {
+            if(node.function.tokenLiteral() == "quote") {
+                return quote(node.arguments[0])
+            }
             val function = eval(node.function, env)
             if (isError(function)) {
                 return function
@@ -97,6 +100,10 @@ fun eval(node: Node?, env: Environment): Object_? {
         }
         else -> null
     }
+}
+
+private fun quote(expression: Expression): Object_ {
+    return Quote(expression)
 }
 
 private fun evalHashLiteral(node: HashLiteral, env: Environment): Object_? {

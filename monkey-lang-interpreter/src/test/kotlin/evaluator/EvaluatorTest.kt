@@ -76,8 +76,8 @@ class EvaluatorTest {
 
         for (test in tests) {
             val obj = testEval(test.first)
-            val integer = if(obj is Null) null else (obj as Integer).value
-            Assert.assertEquals(integer, test.second,  "${test.first} != ${test.second}")
+            val integer = if (obj is Null) null else (obj as Integer).value
+            Assert.assertEquals(integer, test.second, "${test.first} != ${test.second}")
         }
     }
 
@@ -87,20 +87,22 @@ class EvaluatorTest {
             Pair("return 10;", 10),
             Pair("return 10; 9;", 10),
             Pair("9; return 10; 20;", 10),
-            Pair("""
+            Pair(
+                """
                  if (10 > 1) {
                    if (10 > 1) {
                      return 10;
                    }
                    return 1;
                  }
-            """.trimIndent(), 10)
+            """.trimIndent(), 10
+            )
         )
 
         for (test in tests) {
             val obj = testEval(test.first)
             val integer = obj as Integer
-            Assert.assertEquals(integer.value, test.second,  "${test.first} != ${test.second}")
+            Assert.assertEquals(integer.value, test.second, "${test.first} != ${test.second}")
         }
     }
 
@@ -162,6 +164,7 @@ class EvaluatorTest {
         Assert.assertEquals((array.elements[1] as Integer).value, 4)
         Assert.assertEquals((array.elements[2] as Integer).value, 6)
     }
+
     @Test
     fun testArrayIndexExpressions() {
         val tests = arrayOf(
@@ -178,9 +181,9 @@ class EvaluatorTest {
             "[1, 2, 3][-1]" to null
         )
 
-        for(test in tests) {
+        for (test in tests) {
             val obj = testEval(test.first)
-            if(obj is Null || obj == null) {
+            if (obj is Null || obj == null) {
                 Assert.assertEquals(null, test.second)
             } else {
                 val i = obj as Integer
@@ -189,72 +192,51 @@ class EvaluatorTest {
         }
 
     }
+
+    @Test
+    fun testQuote() {
+        val tests = mapOf(
+            "quote(5 + 8)" to "(5 + 8)",
+            "quote(foobar)" to "foobar",
+            "quote(foobar + barfoo)" to "(foobar + barfoo)"
+        )
+
+        for (test in tests) {
+            val obj = testEval(test.key)
+
+            val i = obj as Quote
+            Assert.assertEquals(i?.node?.string(), test.value)
+        }
+    }
+
+
     fun testEval(input: String): Object_? {
         val parser = Parser.new(Lexer.new(input))
         val program = parser.parseProgram()
         return eval(program, Environment())
     }
 }
-
-
-// evaluator/evaluator_test.go
 //
-//func TestArrayIndexExpressions(t *testing.T) {
+//// evaluator/quote_unquote_test.go
+//
+//func TestQuote(t *testing.T) {
 //    tests := []struct {
 //        input    string
-//                expected interface{}
+//                expected string
 //    }{
+//// [...]
 //        {
-//            "[1, 2, 3][0]",
-//            1,
+//                `quote(5 + 8)`,
+//                `(5 + 8)`,
 //        },
 //        {
-//            "[1, 2, 3][1]",
-//            2,
+//                `quote(foobar)`,
+//                `foobar`,
 //        },
 //        {
-//            "[1, 2, 3][2]",
-//            3,
-//        },
-//        {
-//            "let i = 0; [1][i];",
-//            1,
-//        },
-//        {
-//            "[1, 2, 3][1 + 1];",
-//            3,
-//        },
-//        {
-//            "let myArray = [1, 2, 3]; myArray[2];",
-//            3,
-//        },
-//        {
-//            "let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];",
-//            6,
-//        },
-//        {
-//            "let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]",
-//            2,
-//        },
-//        {
-//            "[1, 2, 3][3]",
-//            nil,
-//        },
-//        {
-//            "[1, 2, 3][-1]",
-//            nil,
+//                `quote(foobar + barfoo)`,
+//                `(foobar + barfoo)`,
 //        },
 //    }
-//
-//    for _, tt := range tests {
-//        evaluated := testEval(tt.input)
-//        integer, ok := tt.expected.(int)
-//        if ok {
-//            testIntegerObject(t, evaluated, int64(integer))
-//        } else {
-//            testNullObject(t, evaluated)
-//        }
-//    }
+//// [...]
 //}
-//
-//
