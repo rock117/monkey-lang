@@ -2,7 +2,7 @@ package ast
 
 import token.Token
 
-data class ArrayLiteral(val token: Token, val elements: List<Expression>): Expression {
+data class ArrayLiteral(val token: Token, val elements: MutableList<Expression>): Expression {
     override fun expressionNode() {
 
     }

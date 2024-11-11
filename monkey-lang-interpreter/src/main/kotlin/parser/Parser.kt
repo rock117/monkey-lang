@@ -97,7 +97,7 @@ class Parser(val lexer: Lexer,
         return HashLiteral(token, pairs)
     }
 
-    private fun parseExpressionList(end: TokenType): List<Expression> {
+    private fun parseExpressionList(end: TokenType): MutableList<Expression> {
         val expressions = mutableListOf<Expression>()
         if(this.peekTokenIs(end)) {
             this.nextToken()

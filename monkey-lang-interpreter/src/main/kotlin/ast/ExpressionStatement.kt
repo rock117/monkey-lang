@@ -18,4 +18,8 @@ data class ExpressionStatement(val token: Token, var expression: Expression? = n
     override fun string(): String {
         return if(this.expression != null) this.expression!!.string() else ""
     }
+
+    override fun hashCode(): Int {
+        return token.hashCode() + expression.hashCode()
+    }
 }

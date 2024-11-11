@@ -5,7 +5,7 @@ import token.Token
 /**
  * @param token token `fn`
  */
-data class FunctionLiteral(val token: Token, val parameters: MutableList<Identifier>, val body: BlockStatement): Expression {
+data class FunctionLiteral(val token: Token, val parameters: MutableList<Identifier>, var body: BlockStatement): Expression {
     override fun expressionNode() {
 
     }

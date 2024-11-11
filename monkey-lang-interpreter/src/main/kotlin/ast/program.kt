@@ -13,4 +13,14 @@ class Program(val statements: MutableList<Statement>): Node {
         return this.statements.joinToString("") { it.string() }
     }
 
+    override fun hashCode(): Int {
+        return statements.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if(other is Program) {
+            return statements == other.statements
+        }
+        return false
+    }
 }

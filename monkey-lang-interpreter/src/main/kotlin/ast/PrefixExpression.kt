@@ -13,4 +13,15 @@ data class PrefixExpression(val token: Token, val operator: String, var right: E
     override fun string(): String {
         return token.literal
     }
+
+    override fun hashCode(): Int {
+        return operator.hashCode() + right.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if(other is PrefixExpression) {
+            return operator == other.operator && right == other.right
+        }
+        return false
+    }
 }

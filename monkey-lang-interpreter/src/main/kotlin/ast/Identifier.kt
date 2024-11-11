@@ -18,4 +18,14 @@ data class Identifier(val token: Token, val value: String): Expression {
         return value
     }
 
+    override fun hashCode(): Int {
+        return token.hashCode() + value.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if(other is Identifier) {
+            return token == other.token && value == other.value
+        }
+        return false
+    }
 }
