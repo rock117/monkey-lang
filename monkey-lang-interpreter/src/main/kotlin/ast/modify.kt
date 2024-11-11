@@ -1,8 +1,8 @@
 package ast
 
-typealias ModifierFunc = (Node) -> Node
+typealias ModifierFunc = (Node) -> Node?
 
-fun modify(node: Node, modifier: ModifierFunc): Node {
+fun modify(node: Node, modifier: ModifierFunc): Node? {
     if (node is Program) {
         for (statement in node.statements) {
             modify(statement, modifier)
