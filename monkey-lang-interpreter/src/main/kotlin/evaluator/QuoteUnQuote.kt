@@ -17,6 +17,7 @@ fun quote(node: Node, env: Environment): Object_ {
     return Quote(newNode)
 }
 
+
 private fun evalUnquoteCalls(quoted: Node, env: Environment): Node? {
     return modify(quoted) { node ->
         if(!isUnquoteCall(node)) {

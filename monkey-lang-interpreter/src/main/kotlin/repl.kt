@@ -10,6 +10,7 @@ object repl {
     val PROMPT = ">> "
     fun start(){
         val env = Environment()
+        val macroEnv = Environment()
         while (true) {
             print(PROMPT)
             val line = readlnOrNull() ?: return
@@ -19,7 +20,9 @@ object repl {
                 printParserErrors(parser.erros)
                 continue
             }
-            val evaluated = evaluator.eval(program, env)
+            evaluator.defineMacros(program, macroEnv)
+            val expanded = evaluator.expandMacros(program, macroEnv)
+            val evaluated = evaluator.eval(expanded, env)
             if(evaluated != null) {
                 println(evaluated.inspect())
             }

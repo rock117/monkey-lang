@@ -42,6 +42,7 @@ class Parser(val lexer: Lexer,
             parser.registerPrefixFn(TokenType.STRING, parser::parseStringLiteral)
             parser.registerPrefixFn(TokenType.LBRACKET, parser::parseArrayLiteral)
             parser.registerPrefixFn(TokenType.LBRACE, parser::parseHashLiteral)
+            parser.registerPrefixFn(TokenType.MACRO, parser::parseMacroLiteral)
 
 
             parser.registerInfixFn(TokenType.PLUS, parser::parseInfixExpression)
@@ -59,6 +60,19 @@ class Parser(val lexer: Lexer,
         private fun initTokens(lexer: Lexer): Pair<Token, Token> {
             return Pair(lexer.nextToken(), lexer.nextToken())
         }
+    }
+
+    private fun parseMacroLiteral(): Expression? {
+        val token = this.curToken
+        if(!expectPeek(TokenType.LPAREN)) {
+            return null
+        }
+        val params = parseFunctionParameters()
+        if(!expectPeek(TokenType.LBRACE)) {
+            return null
+        }
+        val body = parseBlockStatement()
+        return MacroLiteral(token, params, body)
     }
 
     private fun parseIndexExpression(left: Expression?): Expression? {

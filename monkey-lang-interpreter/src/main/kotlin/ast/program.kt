@@ -1,6 +1,6 @@
 package ast
 
-class Program(val statements: MutableList<Statement>): Node {
+class Program(var statements: MutableList<Statement>): Node {
     override fun tokenLiteral(): String {
         if(this.statements.isNotEmpty()) {
             return this.statements[0].tokenLiteral()
@@ -22,5 +22,9 @@ class Program(val statements: MutableList<Statement>): Node {
             return statements == other.statements
         }
         return false
+    }
+
+    override fun toString(): String {
+        return statements.toString()
     }
 }

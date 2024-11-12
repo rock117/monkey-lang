@@ -10,6 +10,7 @@ private val KEY_WORDS = mapOf(
     "if" to TokenType.IF,
     "else" to TokenType.ELSE,
     "return" to TokenType.RETURN,
+    "macro" to TokenType.MACRO,
     )
 
 /**

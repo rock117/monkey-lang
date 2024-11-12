@@ -35,7 +35,8 @@ enum class TokenType(val value: String) {
     STRING("STRING"),
     LBRACKET("["),
     RBRACKET("]"),
-    COLON(":");
+    COLON(":"),
+    MACRO("MACRO");
 
     override fun toString(): String {
         return this.value
