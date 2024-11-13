@@ -36,7 +36,15 @@ class EvaluatorTest {
         Assert.assertEquals(9, integer.value)
     }
 
+    @Test
+    fun testEvalIntegerOpExpression() {
 
+        var obj = testEval("1+2*3")
+        Assert.assertNotNull(obj)
+        var integer = obj as Integer
+        Assert.assertEquals(3, integer.value)
+
+    }
     @Test
     fun testEvalBooleanExpression() {
         val tests = listOf("true", "false")
