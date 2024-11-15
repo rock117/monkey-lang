@@ -243,49 +243,49 @@ private fun isTruety(obj: Object_): Boolean {
     }
 }
 
-private fun evalInfixExpression(operator: String, left: Object_?, right: Object_?): Object_? {
+private fun evalInfixExpression(operator: Operator, left: Object_?, right: Object_?): Object_? {
     return if (left?.type() == ObjectType.INTEGER && right?.type() == ObjectType.INTEGER) {
         evalIntegerInfixExpression(operator, left as Integer, right as Integer)
     } else if (left?.type() == ObjectType.STRING && right?.type() == ObjectType.STRING) {
         evalStringInfixExpression(operator, left as String_, right as String_)
     } else if (left?.type() != right?.type()) {
         newError("type mismatch: ${left?.type()} $operator ${right?.type()}")
-    } else if (operator == "==") {
+    } else if (operator == Operator.`==`) {
         `object`.Boolean_(left == right)
-    } else if (operator == "!=") {
+    } else if (operator == Operator.`!=`) {
         `object`.Boolean_(left != right)
     } else {
         newError("unknown operator: ${left?.type()} $operator ${right?.type()}")
     }
 }
 
-private fun evalStringInfixExpression(operator: String, left: String_, right: String_): Object_ {
-    return if (operator != "+") {
+private fun evalStringInfixExpression(operator: Operator, left: String_, right: String_): Object_ {
+    return if (operator != Operator.`+`) {
         newError("unknow operator: ${left.type()} $operator ${right.type()}")
     } else {
         String_(left.value + right.value)
     }
 }
 
-fun evalIntegerInfixExpression(operator: String, left: Integer, right: Integer): Object_ {
+fun evalIntegerInfixExpression(operator: Operator, left: Integer, right: Integer): Object_ {
     return when (operator) {
-        "+" -> Integer(left.value + right.value)
-        "-" -> Integer(left.value - right.value)
-        "*" -> Integer(left.value * right.value)
-        "/" -> Integer(left.value / right.value)
+        Operator.`+` -> Integer(left.value + right.value)
+        Operator.`-` -> Integer(left.value - right.value)
+        Operator.`*` -> Integer(left.value * right.value)
+        Operator.Div -> Integer(left.value / right.value)
 
-        "<" -> `object`.Boolean_(left.value < right.value)
-        ">" -> `object`.Boolean_(left.value > right.value)
-        "==" -> `object`.Boolean_(left.value == right.value)
-        "!=" -> `object`.Boolean_(left.value != right.value)
+        Operator.LT -> `object`.Boolean_(left.value < right.value)
+        Operator.GT -> `object`.Boolean_(left.value > right.value)
+        Operator.`==` -> `object`.Boolean_(left.value == right.value)
+        Operator.`!=` -> `object`.Boolean_(left.value != right.value)
         else -> newError("unknown operator: ${left?.type()} $operator ${right?.type()}")
     }
 }
 
-private fun evalPrefixExpression(operator: String, right: Object_?): Object_ {
+private fun evalPrefixExpression(operator: Operator, right: Object_?): Object_ {
     return when (operator) {
-        "!" -> evalBangOperatorExpression(right)
-        "-" -> evalMinusPrefixOperatorExpression(right)
+        Operator.`!` -> evalBangOperatorExpression(right)
+        Operator.`-` -> evalMinusPrefixOperatorExpression(right)
         else -> newError("unknown operator: $operator ${right?.type()}")
     }
 }

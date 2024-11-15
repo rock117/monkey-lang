@@ -1,6 +1,7 @@
 package parser
 
 import ast.*
+import extension.toOperator
 import lexer.Lexer
 import token.Token
 import token.TokenType
@@ -249,11 +250,11 @@ class Parser(val lexer: Lexer,
         val token = this.curToken
         this.nextToken()
         val right = this.parseExpression(precedence)
-        return InfixExpression(token, left!!, token.literal,  right!!)
+        return InfixExpression(token, left!!, token.literal.toOperator(),  right!!)
     }
 
     private fun parsePrefixExpression(): Expression? {
-        val expression = PrefixExpression(this.curToken, this.curToken.literal)
+        val expression = PrefixExpression(this.curToken, this.curToken.literal.toOperator())
         this.nextToken()
         expression.right = this.parseExpression(OpPrecedence.PREFIX)
         return expression
@@ -282,10 +283,15 @@ class Parser(val lexer: Lexer,
             return null
         }
         var leftExp = prefix.invoke()
-        while (!this.peekTokenIs(TokenType.SEMICOLON) && precedence < this.peekPrecedence()) {
+        var go = !this.peekTokenIs(TokenType.SEMICOLON) && precedence < this.peekPrecedence()
+        println("go: $go, precedence: ${precedence}, this.peekPrecedence(): ${this.peekPrecedence()}")
+        while (go) {
             val infix = this.infixParseFns[this.peekToken!!.type] ?: return null
             this.nextToken()
             leftExp = infix.invoke(leftExp)
+            go = !this.peekTokenIs(TokenType.SEMICOLON) && precedence < this.peekPrecedence()
+            println("go: $go, precedence: ${precedence}, this.peekPrecedence(): ${this.peekPrecedence()}")
+
         }
         return leftExp
     }

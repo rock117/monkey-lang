@@ -5,8 +5,31 @@ import lexer.Lexer
 import org.testng.Assert
 import org.testng.annotations.Test
 import token.TokenType
-
+enum class Op {
+    `a`,
+    `==`
+}
 class ParserTest {
+
+    @Test
+    fun test() {
+        val inputs = listOf(
+//            "1*2",
+//            "1+2",
+           // "1+2+3",
+        //    "1+2*3",
+          //  "add(1,2)"
+            "5*(5+10)"
+        )
+
+        for (input in inputs) {
+            val lexer = Lexer.new(input)
+            val parser = Parser.new(lexer)
+            val program = parser.parseProgram()
+            val statements = program.statements
+            println(statements)
+        }
+    }
 
     @Test
     fun testIdentifierExpression() {

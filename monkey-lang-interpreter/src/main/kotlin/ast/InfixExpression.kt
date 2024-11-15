@@ -2,7 +2,7 @@ package ast
 
 import token.Token
 
-data class InfixExpression(val token: Token, var left: Expression, val operator: String, var right: Expression): Expression {
+data class InfixExpression(val token: Token, var left: Expression, val operator: Operator, var right: Expression): Expression {
     override fun expressionNode() {
 
     }

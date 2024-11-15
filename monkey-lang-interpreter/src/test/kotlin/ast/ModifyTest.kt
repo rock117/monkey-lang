@@ -25,9 +25,9 @@ class ModifyTest {
         val tests = mapOf(
             one() to two(),
             Program(mutableListOf(ExpressionStatement(Token(TokenType.EOF, ""), one()))) to  Program(mutableListOf(ExpressionStatement(Token(TokenType.EOF, ""), two()))),
-            InfixExpression(Token(TokenType.EOF, ""), one(), "+", two()) to InfixExpression(Token(TokenType.EOF, ""), two(), "+", two()),
-            InfixExpression(Token(TokenType.EOF, ""), two(), "+", one()) to InfixExpression(Token(TokenType.EOF, ""), two(), "+", two()),
-            PrefixExpression(Token(TokenType.EOF, ""), "-", one()) to  PrefixExpression(Token(TokenType.EOF, ""), "-", two()),
+            InfixExpression(Token(TokenType.EOF, ""), one(), Operator.`+`, two()) to InfixExpression(Token(TokenType.EOF, ""), two(), Operator.`+`, two()),
+            InfixExpression(Token(TokenType.EOF, ""), two(), Operator.`+`, one()) to InfixExpression(Token(TokenType.EOF, ""), two(), Operator.`+`, two()),
+            PrefixExpression(Token(TokenType.EOF, ""), Operator.`-`, one()) to  PrefixExpression(Token(TokenType.EOF, ""), Operator.`-`, two()),
             IndexExpression(Token(TokenType.EOF, ""), one(), one()) to  IndexExpression(Token(TokenType.EOF, ""), two(), two()),
             IfExpression(Token(TokenType.IF, "if"), one(), BlockStatement(Token(TokenType.LBRACE, "{"), mutableListOf(ExpressionStatement(Token(TokenType.EOF, ""), one()))), BlockStatement(Token(TokenType.LBRACE, "{"), mutableListOf(ExpressionStatement(Token(TokenType.EOF, ""), one())))) to
             IfExpression(Token(TokenType.IF, "if"), two(), BlockStatement(Token(TokenType.LBRACE, "{"), mutableListOf(ExpressionStatement(Token(TokenType.EOF, ""), two()))), BlockStatement(Token(TokenType.LBRACE, "{"), mutableListOf(ExpressionStatement(Token(TokenType.EOF, ""), two())))),
